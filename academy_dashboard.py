@@ -254,13 +254,26 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         
+        # 디버깅: Secrets 확인
+        st.write("**🔍 디버깅 정보:**")
+        if 'google_sheets_id' in st.secrets:
+            st.success("✅ Secrets에 google_sheets_id 발견!")
+            sheets_id_value = st.secrets['google_sheets_id']
+            st.code(f"값: {sheets_id_value[:20]}...{sheets_id_value[-10:]}")
+        else:
+            st.error("❌ Secrets에 google_sheets_id 없음")
+            st.write("현재 Secrets 키 목록:")
+            st.write(list(st.secrets.keys()))
+        
+        st.markdown("---")
+        
         # Sheets ID를 Secrets에서 불러오기
         sheet_id = None
         
         if 'google_sheets_id' in st.secrets:
-            sheet_id = st.secrets['google_sheets_id']
+            sheet_id = str(st.secrets['google_sheets_id']).strip()
             st.success("✅ Sheets ID 자동 로드")
-            st.info(f"연결된 시트: `{sheet_id[:20]}...`")
+            st.info(f"사용 중인 시트: `...{sheet_id[-15:]}`")
         else:
             # Secrets에 없으면 수동 입력
             sheet_id = st.text_input(
