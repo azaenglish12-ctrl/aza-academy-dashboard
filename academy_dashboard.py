@@ -254,19 +254,21 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         
-        # Sheets ID를 Secrets에서 불러오기 (없으면 입력 받기)
-        default_sheet_id = ""
-        if 'google_sheets_id' in st.secrets:
-            default_sheet_id = st.secrets['google_sheets_id']
-            st.success("✅ Sheets ID 자동 로드")
+        # Sheets ID를 Secrets에서 불러오기
+        sheet_id = None
         
-        sheet_id = st.text_input(
-            "Google Sheets ID",
-            value=default_sheet_id,
-            help="스프레드시트 URL의 /d/ 다음 부분을 입력하세요",
-            disabled=bool(default_sheet_id)  # Secrets에 있으면 수정 불가
-        )
-        st.session_state.sheet_id = sheet_id
+        if 'google_sheets_id' in st.secrets:
+            sheet_id = st.secrets['google_sheets_id']
+            st.success("✅ Sheets ID 자동 로드")
+            st.info(f"연결된 시트: `{sheet_id[:20]}...`")
+        else:
+            # Secrets에 없으면 수동 입력
+            sheet_id = st.text_input(
+                "Google Sheets ID",
+                help="스프레드시트 URL의 /d/ 다음 부분을 입력하세요"
+            )
+            if not sheet_id:
+                st.warning("⬅️ Sheets ID를 입력하거나 Secrets에 설정해주세요")
         
         st.markdown("---")
         
