@@ -194,7 +194,7 @@ def get_class_progress(date_str, class_name, 그룹진도표, 반정보):
             return None
         
         # 반정보에서 해당 반의 컬럼명 찾기
-        class_info = 반정보[반정보['반이름'] == class_name]
+        class_info = 반정보[반정보['반코드'] == class_name]
         if class_info.empty:
             return None
         
@@ -254,34 +254,19 @@ def main():
     with st.sidebar:
         st.header("⚙️ 설정")
         
-        # 디버깅: Secrets 확인
-        st.write("**🔍 디버깅 정보:**")
+        # Sheets ID를 Secrets에서 불러오기 (없으면 입력 받기)
+        default_sheet_id = ""
         if 'google_sheets_id' in st.secrets:
-            st.success("✅ Secrets에 google_sheets_id 발견!")
-            sheets_id_value = st.secrets['google_sheets_id']
-            st.code(f"값: {sheets_id_value[:20]}...{sheets_id_value[-10:]}")
-        else:
-            st.error("❌ Secrets에 google_sheets_id 없음")
-            st.write("현재 Secrets 키 목록:")
-            st.write(list(st.secrets.keys()))
-        
-        st.markdown("---")
-        
-        # Sheets ID를 Secrets에서 불러오기
-        sheet_id = None
-        
-        if 'google_sheets_id' in st.secrets:
-            sheet_id = str(st.secrets['google_sheets_id']).strip()
+            default_sheet_id = st.secrets['google_sheets_id']
             st.success("✅ Sheets ID 자동 로드")
-            st.info(f"사용 중인 시트: `...{sheet_id[-15:]}`")
-        else:
-            # Secrets에 없으면 수동 입력
-            sheet_id = st.text_input(
-                "Google Sheets ID",
-                help="스프레드시트 URL의 /d/ 다음 부분을 입력하세요"
-            )
-            if not sheet_id:
-                st.warning("⬅️ Sheets ID를 입력하거나 Secrets에 설정해주세요")
+        
+        sheet_id = st.text_input(
+            "Google Sheets ID",
+            value=default_sheet_id,
+            help="스프레드시트 URL의 /d/ 다음 부분을 입력하세요",
+            disabled=bool(default_sheet_id)  # Secrets에 있으면 수정 불가
+        )
+        st.session_state.sheet_id = sheet_id
         
         st.markdown("---")
         
@@ -368,7 +353,7 @@ def main():
         
         st.write("**반정보 목록:**")
         if len(반정보) > 0:
-            classes = 반정보['반이름'].tolist()
+            classes = 반정보['반코드'].tolist()
             for c in classes:
                 st.write(f"- {c}")
     
